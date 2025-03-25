@@ -1,0 +1,6 @@
+# .npmignore
+src/
+tsconfig.json
+*.ts
+*.tsx
+.vscode/
