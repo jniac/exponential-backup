@@ -2,7 +2,7 @@ import { formatTimespan } from './utils'
 
 export const defaultExponentialOptions = {
   intervalMs: 1000 * 5, // 5 seconds
-  levels: 12,
+  levels: 14,
   expBase: 3,
 }
 
@@ -46,9 +46,11 @@ export type StrategyArg = Partial<typeof defaultExponentialOptions> | keyof type
 export class TimeRangeMap<T> {
   markers = rangeStrategies.exponentionalWithFlatDay()
   map = new Map<number, T>()
+
   add(time: number, value: T) {
     this.map.set(time, value)
   }
+
   *ranges() {
     const times = Array.from(this.map.keys()).sort((a, b) => a - b)
     const { map, markers } = this
@@ -67,13 +69,11 @@ export class TimeRangeMap<T> {
     const values = times.slice(endIndex).map(t => map.get(t)!)
     yield { start: markers[n - 1], end: Infinity, values }
   }
+
   rangeInfo() {
-    let i = 0
-    for (const { end, values } of this.ranges()) {
-      console.log(`r.${i}\n  < ${formatTimespan(end)}\n  values(${values.length})`)
-      i++
-    }
+    return Object.fromEntries([...this.ranges()].map(({ end, values }) => [`< ${formatTimespan(end)}`, values.length]))
   }
+
   strategy(arg: StrategyArg) {
     if (typeof arg === 'string') {
       this.markers = rangeStrategies[arg]()

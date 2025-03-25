@@ -1,25 +1,26 @@
-import { copyFile, mkdir, readdir } from 'fs/promises';
-import path, { extname, join } from 'path';
+import * as fs from 'fs/promises';
+import path from 'path';
 import { TimeRangeMap } from './range.js';
+import { cleanKeys, formatTimespan } from './utils.js';
 const defaultOptions = {
     destination: 'backups',
     dryRun: false,
     strategy: 'exponentionalWithFlatDay',
 };
 async function backupWithPruning(source, incomingOptions) {
-    const { destination, strategy } = {
+    const { destination, strategy, dryRun } = {
         ...defaultOptions,
-        ...incomingOptions,
+        ...cleanKeys(incomingOptions),
     };
     const finalDestination = path.join(path.dirname(source), destination);
-    await mkdir(finalDestination, { recursive: true });
+    await fs.mkdir(finalDestination, { recursive: true });
     const now = Date.now();
     const sourceBasename = path.basename(source).split('.')[0];
     const fileName = `${sourceBasename}-${new Date(now).toISOString().slice(0, -1).replace(/[T:.]/g, '-')}`;
-    const ext = extname(source);
-    const fullName = join(finalDestination, `${fileName}${ext}`);
-    await copyFile(source, fullName);
-    const files = (await readdir(finalDestination)).sort();
+    const ext = path.extname(source);
+    const fullName = path.join(finalDestination, `${fileName}${ext}`);
+    await fs.copyFile(source, fullName);
+    const files = (await fs.readdir(finalDestination)).sort();
     const backups = files.map((file) => {
         const [YYYY, MM, DD, hh, mm, ss, ms] = file.replace(`${sourceBasename}-`, '').replace(ext, '').split('-');
         const timestamp = new Date(`${YYYY}-${MM}-${DD}T${hh}:${mm}:${ss}.${ms}Z`).getTime();
@@ -31,6 +32,7 @@ async function backupWithPruning(source, incomingOptions) {
     }
     const keep = new Set();
     for (const { start, end, values } of rangeMap.ranges()) {
+        // Keep all files of the first and last range
         const keepAll = start === 0 || end === Infinity;
         if (keepAll) {
             for (const file of values) {
@@ -42,11 +44,16 @@ async function backupWithPruning(source, incomingOptions) {
                 keep.add(values[values.length - 1]);
         }
     }
-    console.log(rangeMap.rangeInfo());
-    for (const { file } of backups) {
-        if (!keep.has(file)) {
-            // await unlink(join(finalDestination, file))
+    if (dryRun === false) {
+        for (const { file } of backups) {
+            if (!keep.has(file)) {
+                await fs.unlink(path.join(finalDestination, file));
+            }
         }
+    }
+    else {
+        console.table(rangeMap.rangeInfo());
+        console.log(`Would delete ${backups.length - keep.size} files:${backups.filter(b => !keep.has(b.file)).map(b => `\n  ${b.file} (${formatTimespan(now - b.timestamp)})`).join('')}`);
     }
 }
 export { backupWithPruning, defaultOptions as defaultBackupWithPruningOptions };

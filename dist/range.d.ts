@@ -17,6 +17,8 @@ export declare class TimeRangeMap<T> {
         end: number;
         values: NonNullable<T>[];
     }, void, unknown>;
-    rangeInfo(): void;
+    rangeInfo(): {
+        [k: string]: number;
+    };
     strategy(arg: StrategyArg): this;
 }

@@ -1,7 +1,7 @@
 import { formatTimespan } from './utils.js';
 export const defaultExponentialOptions = {
     intervalMs: 1000 * 5, // 5 seconds
-    levels: 12,
+    levels: 14,
     expBase: 3,
 };
 export const exponential = (options) => {
@@ -62,11 +62,7 @@ export class TimeRangeMap {
         yield { start: markers[n - 1], end: Infinity, values };
     }
     rangeInfo() {
-        let i = 0;
-        for (const { end, values } of this.ranges()) {
-            console.log(`r.${i}\n  < ${formatTimespan(end)}\n  values(${values.length})`);
-            i++;
-        }
+        return Object.fromEntries([...this.ranges()].map(({ end, values }) => [`< ${formatTimespan(end)}`, values.length]));
     }
     strategy(arg) {
         if (typeof arg === 'string') {

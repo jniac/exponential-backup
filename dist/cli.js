@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import meow from 'meow';
 import { backupWithPruning, defaultBackupWithPruningOptions as options } from './index.js';
+import { cleanKeys } from './utils.js';
 const cli = meow(`
   Usage
     $ exponential-backup <input>  
@@ -29,9 +30,15 @@ const cli = meow(`
         strategy: {
             type: 'string',
             shortFlag: 's',
+        },
+        dryRun: {
+            type: 'boolean',
+            shortFlag: 'n',
+            aliases: ['dry-run'],
         }
     },
 });
-const { expBase, intervalMs, levels, destination, strategy: strategyString } = cli.flags;
-const strategy = (strategyString ?? { expBase, intervalMs, levels });
-backupWithPruning(cli.input[0], { destination, strategy });
+const { dryRun, expBase, intervalMs, levels, destination, strategy: strategyString, } = cli.flags;
+const expArgs = cleanKeys({ expBase, intervalMs, levels });
+const strategy = (strategyString ?? Object.keys(expArgs).length > 0 ? expArgs : undefined);
+backupWithPruning(cli.input[0], { destination, dryRun, strategy });

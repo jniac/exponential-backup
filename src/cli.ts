@@ -4,6 +4,7 @@ import meow from 'meow'
 
 import { backupWithPruning, defaultBackupWithPruningOptions as options } from './index'
 import { StrategyArg } from './range'
+import { cleanKeys } from './utils'
 
 const cli = meow(`
   Usage
@@ -34,10 +35,23 @@ const cli = meow(`
       strategy: {
         type: 'string',
         shortFlag: 's',
+      },
+      dryRun: {
+        type: 'boolean',
+        shortFlag: 'n',
+        aliases: ['dry-run'],
       }
     },
   })
 
-const { expBase, intervalMs, levels, destination, strategy: strategyString } = cli.flags
-const strategy = (strategyString ?? { expBase, intervalMs, levels }) as StrategyArg
-backupWithPruning(cli.input[0], { destination, strategy })
+const {
+  dryRun,
+  expBase,
+  intervalMs,
+  levels,
+  destination,
+  strategy: strategyString,
+} = cli.flags
+const expArgs = cleanKeys({ expBase, intervalMs, levels })
+const strategy = (strategyString ?? Object.keys(expArgs).length > 0 ? expArgs : undefined) as StrategyArg
+backupWithPruning(cli.input[0], { destination, dryRun, strategy })

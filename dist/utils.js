@@ -1,3 +1,6 @@
+export function cleanKeys(obj) {
+    return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined));
+}
 export function formatTimespan(ms) {
     if (Number.isFinite(ms) === false)
         return ms.toString();
