@@ -20,14 +20,55 @@ export function formatTimespan(ms: number): string {
   const d = day
 
   const parts = []
-  if (d > 0) parts.push(`${d}d`)
-  if (d < 3) {
-    if (h > 0) parts.push(`${h.toString().padStart(2, '0')}h`)
-    if (m > 0 || h > 0) parts.push(`${m.toString().padStart(2, '0')}m`)
-    if (h < 3) {
-      parts.push(`${s.toString().padStart(2, '0')}s`) // show seconds if short
-    }
+  let push = false
+  if (push ||= d > 0) parts.push(`${d}d`)
+  if (d < 2) {
+    if (push ||= h > 0) parts.push(`${h.toString().padStart(2, '0')}h`)
+    if (push ||= m > 0) parts.push(`${m.toString().padStart(2, '0')}m`)
+    if (push ||= s > 0) parts.push(`${s.toString().padStart(2, '0')}s`)
   }
 
-  return parts.join(' ')
+  return parts.slice(0, 2).join(' ')
+}
+
+export function formatTable(rows: Record<string, any>[]) {
+  if (rows.length === 0) return ''
+
+  const lines = [] as string[]
+
+  const headers = Object.keys(rows[0])
+  const colWidths = headers
+    .map(h => Math.max(h.length, ...rows.map(row => String(row[h]).length)))
+
+  const paddedWidths = colWidths.map(w => w + 2)
+
+  const buildLine = (left: string, mid: string, right: string, fill: string) =>
+    left +
+    paddedWidths.map(w => fill.repeat(w)).join(mid) +
+    right
+
+  const formatRow = (values: string[]) =>
+    '│ ' +
+    values.map((val, i) => val.padEnd(colWidths[i])).join(' │ ') +
+    ' │'
+
+  // Top border
+  lines.push(buildLine('┌', '┬', '┐', '─'))
+
+  // Header row
+  lines.push(formatRow(headers))
+
+  // Divider
+  lines.push(buildLine('├', '┼', '┤', '─'))
+
+  // Rows
+  for (const row of rows) {
+    const values = headers.map(h => String(row[h]))
+    lines.push(formatRow(values))
+  }
+
+  // Bottom border
+  lines.push(buildLine('└', '┴', '┘', '─'))
+
+  return lines.join('\n')
 }

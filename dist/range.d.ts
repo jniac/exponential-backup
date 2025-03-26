@@ -9,6 +9,7 @@ export declare const rangeStrategies: {
 };
 export type StrategyArg = Partial<typeof defaultExponentialOptions> | keyof typeof rangeStrategies;
 export declare class TimeRangeMap<T> {
+    markersStrategy: string;
     markers: number[];
     map: Map<number, T>;
     add(time: number, value: T): void;
@@ -18,7 +19,9 @@ export declare class TimeRangeMap<T> {
         values: NonNullable<T>[];
     }, void, unknown>;
     rangeInfo(): {
-        [k: string]: number;
-    };
+        index: number;
+        end: string;
+        count: number;
+    }[];
     strategy(arg: StrategyArg): this;
 }

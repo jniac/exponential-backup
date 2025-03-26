@@ -38,6 +38,7 @@ export const rangeStrategies = {
     },
 };
 export class TimeRangeMap {
+    markersStrategy = 'none';
     markers = rangeStrategies.exponentionalWithFlatDay();
     map = new Map();
     add(time, value) {
@@ -62,13 +63,15 @@ export class TimeRangeMap {
         yield { start: markers[n - 1], end: Infinity, values };
     }
     rangeInfo() {
-        return Object.fromEntries([...this.ranges()].map(({ end, values }) => [`< ${formatTimespan(end)}`, values.length]));
+        return [...this.ranges()].map(({ end, values }, index) => ({ index, end: `< ${formatTimespan(end)}`, count: values.length }));
     }
     strategy(arg) {
         if (typeof arg === 'string') {
+            this.markersStrategy = arg;
             this.markers = rangeStrategies[arg]();
         }
         else {
+            this.markersStrategy = `exponential(${JSON.stringify(arg).replace(/"/g, '')})`;
             this.markers = exponential(arg);
         }
         return this;

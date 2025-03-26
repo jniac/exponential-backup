@@ -44,6 +44,7 @@ export const rangeStrategies = {
 export type StrategyArg = Partial<typeof defaultExponentialOptions> | keyof typeof rangeStrategies
 
 export class TimeRangeMap<T> {
+  markersStrategy: string = 'none'
   markers = rangeStrategies.exponentionalWithFlatDay()
   map = new Map<number, T>()
 
@@ -71,13 +72,15 @@ export class TimeRangeMap<T> {
   }
 
   rangeInfo() {
-    return Object.fromEntries([...this.ranges()].map(({ end, values }) => [`< ${formatTimespan(end)}`, values.length]))
+    return [...this.ranges()].map(({ end, values }, index) => ({ index, end: `< ${formatTimespan(end)}`, count: values.length }))
   }
 
   strategy(arg: StrategyArg) {
     if (typeof arg === 'string') {
+      this.markersStrategy = arg
       this.markers = rangeStrategies[arg]()
     } else {
+      this.markersStrategy = `exponential(${JSON.stringify(arg).replace(/"/g, '')})`
       this.markers = exponential(arg)
     }
     return this

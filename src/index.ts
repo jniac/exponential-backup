@@ -2,7 +2,7 @@ import * as fs from 'fs/promises'
 import path from 'path'
 
 import { StrategyArg, TimeRangeMap } from './range'
-import { cleanKeys, formatTimespan } from './utils'
+import { cleanKeys, formatTable, formatTimespan } from './utils'
 
 const defaultOptions = {
   destination: 'backups',
@@ -40,6 +40,8 @@ async function backupWithPruning(source: string, incomingOptions: Options) {
   for (const { file, timestamp } of backups) {
     rangeMap.add(now - timestamp, file)
   }
+
+  // Compute the file to keep
   const keep = new Set<string>()
   for (const { start, end, values } of rangeMap.ranges()) {
     // Keep all files of the first and last range
@@ -48,7 +50,10 @@ async function backupWithPruning(source: string, incomingOptions: Options) {
       for (const file of values) {
         keep.add(file)
       }
-    } else {
+    }
+
+    // Keep the last file (oldest) of each range
+    else {
       if (values.length > 0)
         keep.add(values[values.length - 1])
     }
@@ -60,9 +65,15 @@ async function backupWithPruning(source: string, incomingOptions: Options) {
         await fs.unlink(path.join(finalDestination, file))
       }
     }
-  } else {
-    console.table(rangeMap.rangeInfo())
-    console.log(`Would delete ${backups.length - keep.size} files:${backups.filter(b => !keep.has(b.file)).map(b => `\n  ${b.file} (${formatTimespan(now - b.timestamp)})`).join('')}`)
+  }
+
+  // Dry run
+  if (dryRun) {
+    console.log(`Dry run: ${backups.length - keep.size} files to delete`)
+    console.log(`Range strategy: ${rangeMap.markersStrategy}`)
+    console.log(formatTable(rangeMap.rangeInfo()))
+    console.log(`Files to delete: ${backups.length - keep.size}`)
+    console.table(formatTable(backups.filter(b => !keep.has(b.file)).slice(0).reverse().map((b, index) => ({ index, file: b.file, age: formatTimespan(now - b.timestamp) }))))
   }
 }
 
