@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import meow from 'meow';
-import { backupWithPruning, defaultBackupWithPruningOptions as options } from './index.js';
+import { backupWithPruning, defaultBackupWithPruningOptions as options } from './backup.js';
 import { cleanKeys } from './utils.js';
 const cli = meow(`
   Usage

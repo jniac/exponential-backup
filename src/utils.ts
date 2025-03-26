@@ -22,7 +22,7 @@ export function formatTimespan(ms: number): string {
   const parts = []
   let push = false
   if (push ||= d > 0) parts.push(`${d}d`)
-  if (d < 2) {
+  if (d < 2) { // Show hours if less than 2 days
     if (push ||= h > 0) parts.push(`${h.toString().padStart(2, '0')}h`)
     if (push ||= m > 0) parts.push(`${m.toString().padStart(2, '0')}m`)
     if (push ||= s > 0) parts.push(`${s.toString().padStart(2, '0')}s`)

@@ -2,7 +2,7 @@
 
 import meow from 'meow'
 
-import { backupWithPruning, defaultBackupWithPruningOptions as options } from './index'
+import { backupWithPruning, defaultBackupWithPruningOptions as options } from './backup'
 import { StrategyArg } from './range'
 import { cleanKeys } from './utils'
 

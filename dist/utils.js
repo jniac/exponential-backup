@@ -18,7 +18,7 @@ export function formatTimespan(ms) {
     let push = false;
     if (push ||= d > 0)
         parts.push(`${d}d`);
-    if (d < 2) {
+    if (d < 2) { // Show hours if less than 2 days
         if (push ||= h > 0)
             parts.push(`${h.toString().padStart(2, '0')}h`);
         if (push ||= m > 0)
