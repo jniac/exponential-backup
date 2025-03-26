@@ -30,6 +30,9 @@
       "esbuild"
     ]
   },
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
