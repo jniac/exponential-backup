@@ -21,7 +21,7 @@ export declare class TimeRangeMap<T> {
     rangeInfo(): {
         index: number;
         end: string;
-        count: number;
+        count: string | number;
     }[];
     strategy(arg: StrategyArg): this;
 }

@@ -72,7 +72,7 @@ export class TimeRangeMap<T> {
   }
 
   rangeInfo() {
-    return [...this.ranges()].map(({ end, values }, index) => ({ index, end: `< ${formatTimespan(end)}`, count: values.length }))
+    return [...this.ranges()].map(({ end, values }, index) => ({ index, end: `< ${formatTimespan(end)}`, count: values.length > 0 ? values.length : '' }))
   }
 
   strategy(arg: StrategyArg) {

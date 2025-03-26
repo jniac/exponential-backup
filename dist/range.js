@@ -63,7 +63,7 @@ export class TimeRangeMap {
         yield { start: markers[n - 1], end: Infinity, values };
     }
     rangeInfo() {
-        return [...this.ranges()].map(({ end, values }, index) => ({ index, end: `< ${formatTimespan(end)}`, count: values.length }));
+        return [...this.ranges()].map(({ end, values }, index) => ({ index, end: `< ${formatTimespan(end)}`, count: values.length > 0 ? values.length : '' }));
     }
     strategy(arg) {
         if (typeof arg === 'string') {
