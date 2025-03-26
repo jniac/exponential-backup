@@ -7,13 +7,14 @@ import { cleanKeys, formatTable, formatTimespan } from './utils'
 const defaultOptions = {
   destination: 'backups',
   dryRun: false,
+  verbose: false,
   strategy: 'exponentionalWithFlatDay' as StrategyArg,
 }
 
 type Options = Partial<typeof defaultOptions>
 
 async function backupWithPruning(source: string, incomingOptions: Options) {
-  const { destination, strategy, dryRun } = {
+  const { destination, strategy, dryRun, verbose } = {
     ...defaultOptions,
     ...cleanKeys(incomingOptions),
   }
@@ -59,21 +60,35 @@ async function backupWithPruning(source: string, incomingOptions: Options) {
     }
   }
 
+  // Dry run
+  if (dryRun || verbose) {
+    console.log(`Range strategy: ${rangeMap.markersStrategy}`)
+    console.log(formatTable(rangeMap.rangeInfo()))
+    console.log(`Files to delete: ${backups.length - keep.size}`)
+
+    let filesToDelete = backups.filter(b => !keep.has(b.file))
+      .slice(0)
+      .reverse()
+      .map((b, index) => ({ index: index.toString(), file: b.file, age: formatTimespan(now - b.timestamp) }))
+    if (filesToDelete.length === 0) {
+      filesToDelete = [{ index: '-', file: 'No files to delete', age: '-' }]
+    }
+    if (filesToDelete.length > 8) {
+      const msg = `... and ${filesToDelete.length - 8} more`
+      const age = `> ${filesToDelete[8].age}`
+      filesToDelete = filesToDelete
+        .slice(0, 8)
+        .concat([{ index: '...', file: msg, age }])
+    }
+    console.table(formatTable(filesToDelete))
+  }
+
   if (dryRun === false) {
     for (const { file } of backups) {
       if (!keep.has(file)) {
         await fs.unlink(path.join(finalDestination, file))
       }
     }
-  }
-
-  // Dry run
-  if (dryRun) {
-    console.log(`Dry run: ${backups.length - keep.size} files to delete`)
-    console.log(`Range strategy: ${rangeMap.markersStrategy}`)
-    console.log(formatTable(rangeMap.rangeInfo()))
-    console.log(`Files to delete: ${backups.length - keep.size}`)
-    console.table(formatTable(backups.filter(b => !keep.has(b.file)).slice(0).reverse().map((b, index) => ({ index, file: b.file, age: formatTimespan(now - b.timestamp) }))))
   }
 }
 

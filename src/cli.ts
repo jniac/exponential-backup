@@ -40,7 +40,11 @@ const cli = meow(`
         type: 'boolean',
         shortFlag: 'n',
         aliases: ['dry-run'],
-      }
+      },
+      verbose: {
+        type: 'boolean',
+        shortFlag: 'v',
+      },
     },
   })
 

@@ -2,6 +2,7 @@ import { StrategyArg } from './range';
 declare const defaultOptions: {
     destination: string;
     dryRun: boolean;
+    verbose: boolean;
     strategy: StrategyArg;
 };
 type Options = Partial<typeof defaultOptions>;
