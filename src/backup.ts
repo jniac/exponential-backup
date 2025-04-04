@@ -13,7 +13,7 @@ const defaultOptions = {
 
 type Options = Partial<typeof defaultOptions>
 
-async function backupWithPruning(source: string, incomingOptions: Options) {
+async function backupWithPruning(source: string, incomingOptions: Options = {}) {
   const { destination, strategy, dryRun, verbose } = {
     ...defaultOptions,
     ...cleanKeys(incomingOptions),

@@ -8,7 +8,7 @@ const defaultOptions = {
     verbose: false,
     strategy: 'exponentionalWithFlatDay',
 };
-async function backupWithPruning(source, incomingOptions) {
+async function backupWithPruning(source, incomingOptions = {}) {
     const { destination, strategy, dryRun, verbose } = {
         ...defaultOptions,
         ...cleanKeys(incomingOptions),
