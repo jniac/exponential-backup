@@ -1,13 +1,14 @@
 import { execa } from 'execa'
 import fs from 'fs/promises'
-import { fixAllImports } from './fix-imports.mjs'
+import { addJsExtensions } from './add-js-extensions.mjs'
 
 export async function build() {
   await fs.rm('dist', { recursive: true, force: true })
   await execa({ stdio: 'inherit' })`tsc`
-  fixAllImports('dist')
+  await addJsExtensions('dist')
+  // addJsExtension('dist')
 }
 
 if (import.meta.url === 'file://' + process.argv[1]) {
-  build()
+  await build()
 }
