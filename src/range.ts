@@ -19,6 +19,9 @@ export const exponential = (options: Partial<typeof defaultExponentialOptions>) 
 }
 
 export const rangeStrategies = {
+  /**
+   * An exponential strategy with a "flat-day" range in the middle (useful for dayly backups).
+   */
   exponentionalWithFlatDay: () => {
     const expBase = 3
     const intervalMs = 1000 * 5
@@ -52,7 +55,7 @@ export class TimeRangeMap<T> {
     this.map.set(time, value)
   }
 
-  *ranges() {
+  *ranges(): Generator<{ start: number; end: number; values: T[] }> {
     const times = Array.from(this.map.keys()).sort((a, b) => a - b)
     const { map, markers } = this
     const n = markers.length

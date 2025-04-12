@@ -5,6 +5,9 @@ export declare const defaultExponentialOptions: {
 };
 export declare const exponential: (options: Partial<typeof defaultExponentialOptions>) => number[];
 export declare const rangeStrategies: {
+    /**
+     * An exponential strategy with a "flat-day" range in the middle (useful for dayly backups).
+     */
     exponentionalWithFlatDay: () => number[];
 };
 export type StrategyArg = Partial<typeof defaultExponentialOptions> | keyof typeof rangeStrategies;
@@ -16,8 +19,8 @@ export declare class TimeRangeMap<T> {
     ranges(): Generator<{
         start: number;
         end: number;
-        values: NonNullable<T>[];
-    }, void, unknown>;
+        values: T[];
+    }>;
     rangeInfo(): {
         index: number;
         end: string;

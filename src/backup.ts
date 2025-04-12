@@ -2,6 +2,7 @@ import * as fs from 'fs/promises'
 import path from 'path'
 
 import { StrategyArg, TimeRangeMap } from './range'
+import { removeConsecutiveDuplicates } from './remove-duplicates'
 import { cleanKeys, formatTable, formatTimespan } from './utils'
 
 const defaultOptions = {
@@ -83,13 +84,18 @@ async function backupWithPruning(source: string, incomingOptions: Options = {}) 
     console.table(formatTable(filesToDelete))
   }
 
+  const kept = [] as string[]
   if (dryRun === false) {
     for (const { file } of backups) {
-      if (!keep.has(file)) {
+      if (keep.has(file) === false) {
         await fs.unlink(path.join(finalDestination, file))
+      } else {
+        kept.push(path.join(finalDestination, file))
       }
     }
   }
+
+  removeConsecutiveDuplicates(kept, { dryRun, verbose })
 }
 
 export {

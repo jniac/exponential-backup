@@ -16,6 +16,9 @@ export const exponential = (options) => {
     return markers;
 };
 export const rangeStrategies = {
+    /**
+     * An exponential strategy with a "flat-day" range in the middle (useful for dayly backups).
+     */
     exponentionalWithFlatDay: () => {
         const expBase = 3;
         const intervalMs = 1000 * 5;
